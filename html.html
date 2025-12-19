@@ -1,0 +1,245 @@
+<div id="ug-container" class="ug-container">
+  <div class="ug-header">
+    <div>
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <button id="ug-back-btn" class="ug-btn" style="display: none;">← Voltar</button>
+          <strong>Criar perfis de acesso personalizados</strong>
+        </div>
+        <span id="ug-root-label" class="ug-hint"></span>
+      </div>
+      <div>
+        <strong>Como funciona:</strong> Escolha uma unidade principal e depois selecione outras unidades que também poderão ser visualizadas pelos usuários que utilizarem este perfil.
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulário de criação - Nova Etapa 1 (nome + escopos) -->
+  <div id="ug-create-form-step1" class="ug-create-form">
+    <div class="ug-form-header">
+      <h3><strong>Etapa 1 de 4:</strong> Configure o perfil</h3>
+      <span class="ug-hint">Defina o nome do perfil e quais tipos de recursos os usuários poderão visualizar (customers, devices e/ou assets). A unidade "owner" será determinada automaticamente com base nas unidades estruturais selecionadas na próxima etapa.</span>
+    </div>
+    <div class="ug-form-body">
+      <!-- Nome do Perfil -->
+      <div class="ug-field">
+        <label for="ug-group-name">Nome do perfil *</label>
+        <input id="ug-group-name" type="text" placeholder="Ex.: Operadores - Região Sul" />
+      </div>
+
+      <!-- Informação sobre o Owner (agora calculado automaticamente) -->
+      <div class="ug-field" style="display: none;">
+        <label>Owner do perfil</label>
+        <div class="ug-info-box">
+          <strong id="ug-owner-name">Será definido automaticamente</strong>
+          <span class="ug-hint">O perfil será criado dentro do SpecialCustomer correspondente às unidades estruturais selecionadas.</span>
+        </div>
+      </div>
+
+      <!-- Seleção de Escopos -->
+      <div class="ug-field">
+        <label>Permissões de acesso *</label>
+        <div class="ug-checkbox-group">
+          <label class="ug-checkbox-label">
+            <input type="checkbox" id="ug-scope-customers" checked />
+            <span>Visualizar unidades (customers)</span>
+          </label>
+          <label class="ug-checkbox-label">
+            <input type="checkbox" id="ug-scope-devices" checked />
+            <span>Visualizar equipamentos (devices)</span>
+          </label>
+          <label class="ug-checkbox-label">
+            <input type="checkbox" id="ug-scope-assets" checked />
+            <span>Visualizar ativos (assets)</span>
+          </label>
+        </div>
+        <span class="ug-hint">Marque os tipos de recursos que os usuários deste perfil poderão ver. Por padrão, todos estão marcados (somente leitura).</span>
+      </div>
+    </div>
+    <div class="ug-form-footer">
+      <button id="next-step" class="ug-btn primary">Avançar</button>
+      <button id="cancel-step1" class="ug-btn">Cancelar</button>
+      <span id="ug-status" class="ug-status"></span>
+    </div>
+  </div>
+
+  <!-- Formulário de criação - Nova Etapa 2: seleção de unidades -->
+  <div id="ug-create-form-step2" class="ug-create-form" style="display: none;">
+    <div class="ug-form-header">
+      <h3><strong>Etapa 2 de 4:</strong> Selecione as unidades que este perfil poderá ver</h3>
+      <span class="ug-hint">Selecione as unidades estruturais (por exemplo, Brasil, Chile). O sistema localizará automaticamente o SpecialCustomer "pai" (por exemplo, LATAM) e criará o grupo de usuário nele.</span>
+    </div>
+    <div class="ug-form-body">
+      <!-- Seleção de Filhos e Netos -->
+      <div class="ug-field">
+        <label>Unidades disponíveis na hierarquia</label>
+        <div class="ug-selection-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="ug-select-all" class="ug-btn-small">Selecionar todas</button>
+            <button type="button" id="ug-deselect-all" class="ug-btn-small">Desmarcar opcionais</button>
+          </div>
+          <div class="ug-actions" style="margin: 0;">
+            <input id="ug-filter-units" type="search" placeholder="Filtrar unidades..." aria-label="Filtrar unidades" />
+          </div>
+        </div>
+        <div id="ug-hierarchy-tree" class="ug-hierarchy-tree">
+          <div class="ug-loading">Carregando hierarquia...</div>
+        </div>
+      </div>
+
+      <!-- Resumo -->
+      <div class="ug-field">
+        <label>Resumo do que será criado</label>
+        <div class="ug-summary-box">
+          <div><strong>Unidades adicionais selecionadas:</strong> <span id="ug-summary-count">0</span> <span class="ug-hint">(não conta a unidade principal e seus descendentes que já estão inclusos)</span></div>
+          <div><strong>Total de permissões granulares:</strong> <span id="ug-summary-roles">0</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="ug-form-footer">
+      <button id="next-step-3" class="ug-btn primary">Avançar</button>
+      <button id="cancel-step2" class="ug-btn">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Formulário de criação - Nova Etapa 3: Seleção do tipo de usuário (oculto por padrão) -->
+  <div id="ug-create-form-step3" class="ug-create-form" style="display: none;">
+    <div class="ug-form-header">
+      <h3><strong>Etapa 3 de 4:</strong> Escolha o tipo de usuário</h3>
+      <span class="ug-hint">Se você já tem um tipo de usuário configurado como modelo (template), pode copiar suas configurações. Caso contrário, o grupo será criado apenas com as permissões granulares que você configurou.</span>
+    </div>
+    <div class="ug-form-body">
+      <div class="ug-field">
+        <label>Modelos de grupos disponíveis</label>
+        <span class="ug-hint">Clique em um tipo para copiar suas regras, ou volte para criar sem modelo</span>
+        <div id="ug-user-type-list" class="ug-user-type-list">
+          <div class="ug-loading">Carregando tipos de usuário...</div>
+        </div>
+      </div>
+    </div>
+    <div class="ug-form-footer">
+      <button id="cancel-step3" class="ug-btn">Voltar</button>
+    </div>
+  </div>
+
+  <!-- Formulário de criação - Nova Etapa 4: Confirmação final -->
+  <div id="ug-create-form-step4" class="ug-create-form" style="display: none;">
+    <div class="ug-form-header">
+      <h3><strong>Etapa 4 de 4:</strong> Confirme a criação</h3>
+      <span class="ug-hint">Revise as configurações antes de criar o grupo. Todas as permissões serão configuradas automaticamente.</span>
+    </div>
+    <div class="ug-form-body">
+      <div class="ug-field">
+        <label>Resumo do perfil que será criado</label>
+        <div class="ug-info-box">
+          <p><strong>Confirme os detalhes:</strong></p>
+          <ul>
+            <li><strong>Nome:</strong> <span id="ug-final-name">-</span></li>
+            <li><strong>Tipo base:</strong> <span id="ug-final-type">-</span></li>
+            <li><strong>Unidades:</strong> <span id="ug-final-units">-</span></li>
+            <li><strong>Permissões:</strong> <span id="ug-final-perms">-</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="ug-form-footer">
+      <button id="confirm-create-group" class="ug-btn primary">Criar perfil agora</button>
+      <button id="cancel-step4" class="ug-btn">Cancelar</button>
+      <span id="ug-status" class="ug-status"></span>
+    </div>
+  </div>
+
+  <!-- Seção de Resumo Final (exibida após criar o grupo) -->
+  <div id="ug-summary-section" class="ug-create-form" style="display: none;">
+    <div class="ug-form-body">
+      <div class="ug-field">
+        <div class="ug-info-box" id="ug-created-summary">
+          <!-- Preenchido dinamicamente pelo script -->
+        </div>
+      </div>
+    </div>
+    <div class="ug-form-footer">
+      <button id="ug-create-user-btn" class="ug-btn primary">＋ Criar usuário neste perfil</button>
+      <button id="ug-finish-btn" class="ug-btn">Finalizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Criar Usuário (2 Etapas) -->
+<div id="ug-add-user-modal" class="modal-backdrop" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="ug-user-modal-title">Adicionar novo usuário - Etapa 1 de 2</h3>
+      <button id="ug-close-user-modal" class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-steps-container">
+        <!-- Etapa 1: Criar Usuário -->
+        <div id="ug-user-step-1" class="modal-step active">
+          <p class="step-description">Preencha os dados do novo usuário:</p>
+          <div class="form-grid">
+            <div class="form-row">
+              <div class="ug-field flex-1">
+                <label for="ug-user-firstName">Nome *</label>
+                <input id="ug-user-firstName" type="text" placeholder="Digite o nome" required />
+              </div>
+              <div class="ug-field flex-1">
+                <label for="ug-user-lastName">Sobrenome *</label>
+                <input id="ug-user-lastName" type="text" placeholder="Digite o sobrenome" required />
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="ug-field full-width">
+                <label for="ug-user-email">E-mail *</label>
+                <input id="ug-user-email" type="email" placeholder="usuario@exemplo.com" required />
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="ug-field flex-1">
+                <label for="ug-user-phone">Telefone</label>
+                <input id="ug-user-phone" type="tel" placeholder="(11) 99999-9999" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 2: Link de Ativação -->
+        <div id="ug-user-step-2" class="modal-step" style="display: none;">
+          <div class="success-message">
+            <div class="success-icon">✓</div>
+            <h4>Usuário criado com sucesso!</h4>
+            <p id="ug-created-user-name">Nome do usuário</p>
+          </div>
+          
+          <p class="step-description">Link de ativação da conta:</p>
+          
+          <div class="form-grid">
+            <div class="ug-field full-width">
+              <label>Link de ativação</label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input id="ug-activation-link" type="text" readonly style="flex: 1; background: #f5f5f5;" />
+                <button id="ug-copy-link-btn" class="ug-btn">Copiar</button>
+              </div>
+              <span class="ug-hint">Envie este link para o usuário ativar a conta e definir a senha.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <!-- Botões da Etapa 1 -->
+      <div id="ug-user-step-1-buttons" class="modal-footer-buttons">
+        <button id="ug-create-user-submit" class="ug-btn primary">Criar usuário</button>
+        <button id="ug-cancel-user" class="ug-btn">Cancelar</button>
+      </div>
+      
+      <!-- Botões da Etapa 2 -->
+      <div id="ug-user-step-2-buttons" class="modal-footer-buttons" style="display: none;">
+        <button id="ug-user-finish-btn" class="ug-btn primary">Concluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
